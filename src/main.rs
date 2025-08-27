@@ -2,10 +2,14 @@
 
 mod constants;
 mod map;
+mod map_builder;
+mod player;
 mod state;
 mod prelude {
     pub use super::constants::*;
     pub use super::map::*;
+    pub use super::map_builder::*;
+    pub use super::player::*;
     pub use super::state::*;
     pub use bracket_lib::prelude::*;
 }

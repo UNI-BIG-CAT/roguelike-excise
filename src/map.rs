@@ -1,4 +1,5 @@
 use super::prelude::*;
+
 const NUM_TILES: usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
 
 #[derive(PartialEq, Copy, Clone)]
@@ -7,8 +8,8 @@ pub enum TileType {
     Floor,
 }
 
-pub fn map_idx(x: i32, y: i32) -> usize {
-    (y as usize * SCREEN_WIDTH as usize) + x as usize
+pub fn map_idx(point: &Point) -> usize {
+    (point.y as usize * SCREEN_WIDTH as usize) + point.x as usize
 }
 
 pub struct Map {
@@ -25,7 +26,7 @@ impl Map {
     pub fn render(&self, ctx: &mut BTerm) {
         for y in 0..SCREEN_HEIGHT {
             for x in 0..SCREEN_WIDTH {
-                let idx = map_idx(x, y);
+                let idx = map_idx(&Point { x, y });
                 match self.tiles[idx] {
                     TileType::Floor => {
                         ctx.set(x, y, YELLOW, BLACK, to_cp437('.'));
@@ -35,6 +36,22 @@ impl Map {
                     }
                 }
             }
+        }
+    }
+
+    fn is_in_bounds(&self, point: &Point) -> bool {
+        point.x > 0 && point.x < SCREEN_WIDTH && point.y > 0 && point.y < SCREEN_HEIGHT
+    }
+
+    pub fn can_enter_tile(&self, point: &Point) -> bool {
+        self.is_in_bounds(point) && self.tiles[map_idx(point)] == TileType::Floor
+    }
+
+    pub fn try_idx(&self, point: &Point) -> Option<usize> {
+        if !self.is_in_bounds(point) {
+            None
+        } else {
+            Some(map_idx(point))
         }
     }
 }
