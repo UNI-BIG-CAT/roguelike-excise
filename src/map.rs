@@ -1,5 +1,5 @@
 use super::prelude::*;
-const NUM_TITLE: usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
+const NUM_TILES: usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum TileType {
@@ -18,7 +18,7 @@ pub struct Map {
 impl Map {
     pub fn new() -> Self {
         Self {
-            tiles: vec![TileType::Floor; NUM_TITLE],
+            tiles: vec![TileType::Floor; NUM_TILES],
         }
     }
 
@@ -28,7 +28,7 @@ impl Map {
                 let idx = map_idx(x, y);
                 match self.tiles[idx] {
                     TileType::Floor => {
-                        ctx.set(x, y, YELLOW, YELLOW, to_cp437('.'));
+                        ctx.set(x, y, YELLOW, BLACK, to_cp437('.'));
                     }
                     TileType::Wall => {
                         ctx.set(x, y, GREEN, BLACK, to_cp437('#'));
