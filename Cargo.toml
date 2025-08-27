@@ -1,0 +1,22 @@
+[package]
+name = "roguelike"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bracket-lib="~0.8.1"
+
+[target.'cfg(windows)'.build-dependencies]
+winres = "0.1"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[[bin]]
+name = "roguelike"
+path = "src/main.rs"
+windows_subsystem = "windows"
