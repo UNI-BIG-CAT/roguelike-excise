@@ -1,19 +1,27 @@
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
 mod camera;
+mod components;
 mod constants;
 mod map;
 mod map_builder;
-mod player;
+mod spawner;
 mod state;
+mod systems;
+// mod player;
+
 mod prelude {
     pub use super::camera::*;
+    pub use super::components::*;
     pub use super::constants::*;
     pub use super::map::*;
     pub use super::map_builder::*;
-    pub use super::player::*;
+    pub use super::spawner::*;
     pub use super::state::*;
+    pub use super::systems::*;
     pub use bracket_lib::prelude::*;
+    pub use legion::*;
+    // pub use super::player::*;
 }
 
 use prelude::*;
