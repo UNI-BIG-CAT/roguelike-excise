@@ -25,40 +25,40 @@ impl Map {
         }
     }
 
-    // pub fn render(&self, ctx: &mut BTerm, camera: &Camera) {
-    //     ctx.set_active_console(0); // 第一个图层显示地图
-    //     // 仅接受可视边界
-    //     for y in camera.top_y..camera.bottom_y {
-    //         for x in camera.left_x..camera.right_x {
-    //             if self.is_in_bounds(&Point::new(x, y)) {
-    //                 let idx = map_idx(&Point::new(x, y));
-    //                 match self.tiles[idx] {
-    //                     TileType::Floor => {
-    //                         ctx.set(
-    //                             x - camera.left_x,
-    //                             y - camera.top_y,
-    //                             WHITE,
-    //                             BLACK,
-    //                             to_cp437('.'),
-    //                         );
-    //                     }
-    //                     TileType::Wall => {
-    //                         ctx.set(
-    //                             x - camera.left_x,
-    //                             y - camera.top_y,
-    //                             WHITE,
-    //                             BLACK,
-    //                             to_cp437('#'),
-    //                         );
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+    pub fn render(&self, ctx: &mut BTerm, camera: &Camera) {
+        ctx.set_active_console(0); // 第一个图层显示地图
+        // 仅接受可视边界
+        for y in camera.top_y..camera.bottom_y {
+            for x in camera.left_x..camera.right_x {
+                if self.is_in_bounds(&Point::new(x, y)) {
+                    let idx = map_idx(&Point::new(x, y));
+                    match self.tiles[idx] {
+                        TileType::Floor => {
+                            ctx.set(
+                                x - camera.left_x,
+                                y - camera.top_y,
+                                WHITE,
+                                BLACK,
+                                to_cp437('.'),
+                            );
+                        }
+                        TileType::Wall => {
+                            ctx.set(
+                                x - camera.left_x,
+                                y - camera.top_y,
+                                WHITE,
+                                BLACK,
+                                to_cp437('#'),
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     // 是否在地图范围内
-    fn is_in_bounds(&self, point: &Point) -> bool {
+    pub fn is_in_bounds(&self, point: &Point) -> bool {
         point.x > 0 && point.x < DISPLAY_WIDTH && point.y > 0 && point.y < DISPLAY_HEIGHT
     }
 
