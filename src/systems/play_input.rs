@@ -28,7 +28,6 @@ pub fn player_input(
     #[resource] camera: &mut Camera,          // 自动注入相机
 ) {
     if let Some(key) = key {
-        println!("===========2======");
         let delta = match key {
             VirtualKeyCode::Left => Point::new(-1, 0),
             VirtualKeyCode::Right => Point::new(1, 0),
@@ -37,7 +36,6 @@ pub fn player_input(
             _ => Point::new(0, 0),
         };
         if delta.x != 0 || delta.y != 0 {
-            println!("delta: {:?}", delta);
             let mut players = <&mut Point>::query().filter(component::<Player>());
             players.iter_mut(ecs).for_each(|pos| {
                 let destination = *pos + delta;
