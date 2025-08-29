@@ -26,5 +26,6 @@ pub fn spawn_enemy(ecs: &mut World, rng: &mut RandomNumberGenerator, pos: Point)
                 _ => unreachable!(),
             },
         },
+        MovingRandomly {},
     ));
 }
