@@ -1,3 +1,4 @@
+use crate::prelude::systems::*;
 use crate::prelude::*;
 use legion::world::SubWorld;
 
@@ -22,13 +23,13 @@ use legion::world::SubWorld;
 #[read_component(Player)] // 表示这个系统需要读取 Player 组件 允许系统识别哪些实体是玩家
 pub fn player_input(
     ecs: &mut SubWorld, // 自动注入 ECS 世界
+    commands: &mut CommandBuffer,
     // #[resource] 表示这个参数应该从全局资源中获取
-    #[resource] map: &Map,                    // 自动注入资源
     #[resource] key: &Option<VirtualKeyCode>, // 自动注入按键输入
-    #[resource] camera: &mut Camera,          // 自动注入相机
     #[resource] turn_state: &mut TurnState,   // 自动注入游戏回合状态
 ) {
-    if let Some(key) = key {
+    let mut players = <(Entity, &Point)>::query().filter(component::<Player>());
+    if let Some(key) = *key {
         let delta = match key {
             VirtualKeyCode::Left => Point::new(-1, 0),
             VirtualKeyCode::Right => Point::new(1, 0),
@@ -36,16 +37,16 @@ pub fn player_input(
             VirtualKeyCode::Down => Point::new(0, 1),
             _ => Point::new(0, 0),
         };
-        if delta.x != 0 || delta.y != 0 {
-            let mut players = <&mut Point>::query().filter(component::<Player>());
-            players.iter_mut(ecs).for_each(|pos| {
-                let destination = *pos + delta;
-                if map.can_enter_tile(&destination) {
-                    *pos = destination;
-                    camera.on_player_move(destination);
-                    *turn_state = TurnState::PlayerTurn;
-                }
-            });
-        }
+        players.iter(ecs).for_each(|(entity, pos)| {
+            let destination = *pos + delta;
+            commands.push((
+                (),
+                WantsToMove {
+                    entity: *entity,
+                    destination,
+                },
+            ));
+            *turn_state = TurnState::PlayerTurn;
+        });
     }
 }
