@@ -3,7 +3,7 @@ use legion::systems::CommandBuffer;
 use legion::world::SubWorld;
 
 #[system]
-#[read_component(Health)]
+#[write_component(Health)]
 #[read_component(WantsToAttack)]
 pub fn combat(ecs: &mut SubWorld, commands: &mut CommandBuffer) {
     let mut attacks = <(Entity, &WantsToAttack)>::query();
@@ -11,20 +11,24 @@ pub fn combat(ecs: &mut SubWorld, commands: &mut CommandBuffer) {
         .iter(ecs)
         .map(|(entity, attack)| (*entity, attack.victim))
         .collect();
-    victims.iter().for_each(|(message, victiom)| {
-        if let Ok(mut health) = ecs
-            .entry_mut(*victiom)
+
+    victims.iter().for_each(|(message, victim)| {
+        println!("Processing victim: {:?}", *victim);
+        if let Ok(health) = ecs
+            .entry_mut(*victim)
             .unwrap()
             .get_component_mut::<Health>()
         {
             println!("Health before attack:{}", health.current);
             health.current -= 1;
-            println!("Health after attack:{}", health.current);
             if health.current <= 0 {
-                println!("Victim is dead");
-                commands.remove(*victiom);
+                commands.remove(*victim);
+            } else {
+                println!("Health after attack:{}", health.current);
             }
-            commands.remove(*message);
+        } else {
+            println!("Failed to get Health component for victim: {:?}", victim);
         }
+        commands.remove(*message);
     });
 }

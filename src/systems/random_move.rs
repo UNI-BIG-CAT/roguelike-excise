@@ -4,6 +4,8 @@ use legion::world::SubWorld;
 #[system]
 #[read_component(Point)]
 #[read_component(MovingRandomly)]
+#[read_component(Health)]
+#[read_component(Player)]
 pub fn random_move(ecs: &mut SubWorld, commands: &mut CommandBuffer) {
     let mut movers = <(Entity, &Point, &MovingRandomly)>::query().filter(component::<Enemy>());
     let mut positions = <(Entity, &Point, &Health)>::query();
@@ -36,6 +38,7 @@ pub fn random_move(ecs: &mut SubWorld, commands: &mut CommandBuffer) {
                     .get_component::<Player>()
                     .is_ok()
                 {
+                    attacked = true;
                     commands.push((
                         (),
                         WantsToAttack {
@@ -43,7 +46,6 @@ pub fn random_move(ecs: &mut SubWorld, commands: &mut CommandBuffer) {
                             victim: *victim,
                         },
                     ));
-                    attacked = true;
                 }
             });
         if !attacked {
