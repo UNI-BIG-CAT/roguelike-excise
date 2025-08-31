@@ -20,9 +20,14 @@ impl State {
         let mut rng = RandomNumberGenerator::new();
         let map_builder = MapBuilder::new(&mut rng);
         spawn_player(&mut ecs, map_builder.player_start); // 添加玩家
-        map_builder.rooms.iter().skip(1).map(|r| r.center()).for_each(|pos| {
-            spawn_enemy(&mut ecs, &mut rng, pos);
-        });
+        map_builder
+            .rooms
+            .iter()
+            .skip(1)
+            .map(|r| r.center())
+            .for_each(|pos| {
+                spawn_enemy(&mut ecs, &mut rng, pos);
+            });
         resources.insert(map_builder.map);
         resources.insert(Camera::new(map_builder.player_start));
         resources.insert(TurnState::AwaitingInput);
@@ -46,12 +51,16 @@ impl GameState for State {
         ctx.cls();
         ctx.set_active_console(1);
         ctx.cls();
+        ctx.set_active_console(2);
+        ctx.cls();
         //
         // self.player.update(ctx, &mut self.map, &mut self.camera);
         // self.map.render(ctx, &self.camera);
         // self.player.render(ctx, &self.camera);
 
         self.resources.insert(ctx.key); // 把键盘输入状态作为一个资源添加到资源列表(会替换掉已经存在的同类型资源)
+        ctx.set_active_console(0);
+        self.resources.insert(Point::from_tuple(ctx.mouse_pos()));
         /*
             self.system.execute(&mut self.ecs, &mut self.resources);
             作用：执行游戏系统
@@ -69,9 +78,15 @@ impl GameState for State {
         // self.system.execute(&mut self.ecs, &mut self.resources);
         let current_state = self.resources.get::<TurnState>().unwrap().clone();
         match current_state {
-            TurnState::AwaitingInput => self.input_system.execute(&mut self.ecs, &mut self.resources),
-            TurnState::PlayerTurn => self.player_system.execute(&mut self.ecs, &mut self.resources),
-            TurnState::MonsterTurn => self.monster_system.execute(&mut self.ecs, &mut self.resources),
+            TurnState::AwaitingInput => self
+                .input_system
+                .execute(&mut self.ecs, &mut self.resources),
+            TurnState::PlayerTurn => self
+                .player_system
+                .execute(&mut self.ecs, &mut self.resources),
+            TurnState::MonsterTurn => self
+                .monster_system
+                .execute(&mut self.ecs, &mut self.resources),
         }
         /*
             render_draw_buffer(ctx).expect("Render error");

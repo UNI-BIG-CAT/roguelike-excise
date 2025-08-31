@@ -36,8 +36,10 @@ fn main() {
         .with_tile_dimensions(32, 32) // 每个字符占32x32像素
         .with_resource_path("resources/")
         .with_font("dungeonfont.png", 32, 32) // 加载字体文件，每个字符32x32
+        .with_font("terminal8x8.png", 8, 8)
         .with_simple_console(DISPLAY_WIDTH, DISPLAY_HEIGHT, "dungeonfont.png") // 主控制台 图层0
         .with_simple_console_no_bg(DISPLAY_WIDTH, DISPLAY_HEIGHT, "dungeonfont.png") // 无背景控制台 图层1
+        .with_simple_console_no_bg(SCREEN_HEIGHT * 2, SCREEN_HEIGHT * 2, "terminal8x8.png") // 无背景控制台 图层2
         .with_vsync(true) // 添加垂直同步
         .build()
         .unwrap();
