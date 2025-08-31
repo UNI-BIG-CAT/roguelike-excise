@@ -28,3 +28,9 @@ pub struct Health {
 
 #[derive(Clone, PartialEq)]
 pub struct Name(pub String);
+
+#[derive(Copy, Debug, Clone, PartialEq)]
+pub struct WantsToAttack {
+    pub attacker: Entity,
+    pub victim: Entity,
+}
