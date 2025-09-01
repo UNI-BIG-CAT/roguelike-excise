@@ -1,4 +1,5 @@
 // mod collision;
+mod chasing;
 mod combat;
 mod end_turn;
 mod entity_render;
@@ -8,10 +9,10 @@ mod movement;
 mod player_input;
 mod random_move;
 mod tooltips;
-
 use super::prelude::*;
 // use crate::systems::collision::collision_system;
 use crate::systems::entity_render::entity_render_system;
+pub use chasing::*;
 pub use combat::*;
 pub use end_turn::*;
 pub use hub::*;
@@ -52,6 +53,7 @@ pub fn build_player_scheduler() -> Schedule {
 pub fn build_monster_scheduler() -> Schedule {
     Schedule::builder()
         .add_system(random_move_system())
+        .add_system(chasing_system())
         .flush()
         .add_system(combat_system())
         .flush()
