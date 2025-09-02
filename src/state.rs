@@ -20,6 +20,7 @@ impl State {
         let mut rng = RandomNumberGenerator::new();
         let map_builder = MapBuilder::new(&mut rng);
         spawn_player(&mut ecs, map_builder.player_start); // 添加玩家
+        spawn_amulet_of_yala(&mut ecs, map_builder.amulet_start);
         map_builder
             .rooms
             .iter()
@@ -41,6 +42,57 @@ impl State {
             input_system: build_input_scheduler(),
             player_system: build_player_scheduler(),
             monster_system: build_monster_scheduler(),
+        }
+    }
+    fn reset_game_state(&mut self) {
+        self.ecs = World::default();
+        self.resources = Resources::default();
+        let mut rng = RandomNumberGenerator::new();
+        let map_builder = MapBuilder::new(&mut rng);
+        spawn_player(&mut self.ecs, map_builder.player_start);
+        spawn_amulet_of_yala(&mut self.ecs, map_builder.amulet_start);
+        map_builder
+            .rooms
+            .iter()
+            .skip(1)
+            .map(|r| r.center())
+            .for_each(|pos| {
+                spawn_enemy(&mut self.ecs, &mut rng, pos);
+            });
+        self.resources.insert(map_builder.map);
+        self.resources.insert(Camera::new(map_builder.player_start));
+        self.resources.insert(TurnState::AwaitingInput);
+    }
+
+    fn game_over(&mut self, ctx: &mut BTerm) {
+        ctx.set_active_console(2);
+        ctx.print_color_centered(2, RED, BLACK, "You Died!");
+        ctx.print_color_centered(
+            4,
+            WHITE,
+            BLACK,
+            "Slain by a monster, your hero's journey has come to an end.",
+        );
+        ctx.print_color_centered(5, YELLOW, BLACK, "Don't worry, you can try again.");
+        ctx.print_color_centered(8, GREEN, BLACK, "Press to play again");
+        if let Some(key) = ctx.key {
+            self.reset_game_state();
+        }
+    }
+
+    fn victory(&mut self, ctx: &mut BTerm) {
+        ctx.set_active_console(2);
+        ctx.print_color_centered(2, GREEN, BLACK, "You Win!");
+        ctx.print_color_centered(4, WHITE, BLACK, "You've slain the great evil");
+        ctx.print_color_centered(
+            6,
+            YELLOW,
+            BLACK,
+            "You put the amulet of yala in the right place",
+        );
+        ctx.print_color_centered(8, GREEN, BLACK, "Press to play again");
+        if let Some(key) = ctx.key {
+            self.reset_game_state();
         }
     }
 }
@@ -87,6 +139,8 @@ impl GameState for State {
             TurnState::MonsterTurn => self
                 .monster_system
                 .execute(&mut self.ecs, &mut self.resources),
+            TurnState::GameOver => self.game_over(ctx),
+            TurnState::Victory => self.victory(ctx),
         }
         /*
             render_draw_buffer(ctx).expect("Render error");
