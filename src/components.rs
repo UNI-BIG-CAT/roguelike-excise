@@ -1,4 +1,5 @@
 use super::prelude::*;
+use std::collections::HashSet;
 
 //
 #[derive(Copy, Debug, Clone, PartialEq)]
@@ -42,3 +43,28 @@ pub struct ChasingPlayer;
 pub struct Item;
 #[derive(Copy, Debug, Clone, PartialEq)]
 pub struct AmuletOfYala;
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct FieldOfView {
+    pub visible_tiles: HashSet<Point>,
+    pub radius: i32,
+    pub is_dirty: bool,
+}
+
+impl FieldOfView {
+    pub fn new(radius: i32) -> Self {
+        Self {
+            visible_tiles: HashSet::new(),
+            radius,
+            is_dirty: true,
+        }
+    }
+
+    pub fn clone_dirty(&self) -> Self {
+        Self {
+            visible_tiles: self.visible_tiles.clone(),
+            radius: self.radius,
+            is_dirty: true,
+        }
+    }
+}

@@ -13,6 +13,7 @@ pub fn spawn_player(ecs: &mut World, pos: Point) {
             current: 20,
             max: 20,
         },
+        FieldOfView::new(8),
     ));
 }
 
@@ -28,40 +29,23 @@ pub fn spawn_enemy(ecs: &mut World, rng: &mut RandomNumberGenerator, pos: Point)
         3 => to_cp437('g'), // 妖精
         _ => unreachable!(),
     };
-    if glyph == to_cp437('g') {
-        // 妖精使用随机移动
-        ecs.push((
-            Enemy,
-            pos,
-            Render {
-                color: ColorPair::new(WHITE, BLACK),
-                glyph,
-            },
-            // ChasingPlayer {},
-            MovingRandomly {},
-            Health {
-                current: 10,
-                max: 10,
-            },
-            Name(name),
-        ));
-    } else {
-        // 其他敌人追踪玩家
-        ecs.push((
-            Enemy,
-            pos,
-            Render {
-                color: ColorPair::new(WHITE, BLACK),
-                glyph,
-            },
-            ChasingPlayer {},
-            Health {
-                current: 10,
-                max: 10,
-            },
-            Name(name),
-        ));
-    }
+    // 敌人追踪玩家
+    ecs.push((
+        Enemy,
+        pos,
+        Render {
+            color: ColorPair::new(WHITE, BLACK),
+            glyph,
+        },
+        // MovingRandomly{},
+        ChasingPlayer {},
+        Health {
+            current: 10,
+            max: 10,
+        },
+        Name(name),
+        FieldOfView::new(6),
+    ));
 }
 
 fn goblin() -> (i32, String, FontCharType) {
@@ -75,6 +59,7 @@ fn orc() -> (i32, String, FontCharType) {
 pub fn spawn_amulet_of_yala(ecs: &mut World, pos: Point) {
     ecs.push((
         Item,
+        AmuletOfYala,
         pos,
         Render {
             color: ColorPair::new(WHITE, BLACK),

@@ -75,7 +75,7 @@ impl State {
         );
         ctx.print_color_centered(5, YELLOW, BLACK, "Don't worry, you can try again.");
         ctx.print_color_centered(8, GREEN, BLACK, "Press to play again");
-        if let Some(key) = ctx.key {
+        if let Some(_key) = ctx.key {
             self.reset_game_state();
         }
     }
@@ -91,7 +91,7 @@ impl State {
             "You put the amulet of yala in the right place",
         );
         ctx.print_color_centered(8, GREEN, BLACK, "Press to play again");
-        if let Some(key) = ctx.key {
+        if let Some(_key) = ctx.key {
             self.reset_game_state();
         }
     }
