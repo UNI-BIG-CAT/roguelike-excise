@@ -11,17 +11,22 @@ pub enum TileType {
 }
 
 pub fn map_idx(point: &Point) -> usize {
-    (point.y as usize * DISPLAY_WIDTH as usize) + point.x as usize
+    // 确保坐标在有效范围内，避免负数转换为usize导致溢出
+    let x = point.x.max(0).min(DISPLAY_WIDTH - 1) as usize;
+    let y = point.y.max(0).min(DISPLAY_HEIGHT - 1) as usize;
+    (y * DISPLAY_WIDTH as usize) + x
 }
 
 pub struct Map {
     pub tiles: Vec<TileType>,
+    pub revealed_tiles: Vec<bool>,
 }
 
 impl Map {
     pub fn new() -> Self {
         Self {
             tiles: vec![TileType::Floor; NUM_TILES],
+            revealed_tiles: vec![false; NUM_TILES],
         }
     }
 
