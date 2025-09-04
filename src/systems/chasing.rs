@@ -32,7 +32,6 @@ pub fn chasing(#[resource] map: &Map, ecs: &mut SubWorld, commands: &mut Command
                 *player_pos
             };
             //
-            println!("destination22: {:?}", destination);
             let mut attacked = false;
             positions
                 .iter(ecs)

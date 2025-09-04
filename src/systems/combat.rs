@@ -20,18 +20,15 @@ pub fn combat(ecs: &mut SubWorld, commands: &mut CommandBuffer) {
             .get_component::<Player>()
             .is_ok();
         //
-        println!("Processing victim: {:?}", *victim);
         if let Ok(health) = ecs
             .entry_mut(*victim)
             .unwrap()
             .get_component_mut::<Health>()
         {
-            println!("Health before attack:{}", health.current);
             health.current -= 1;
             if health.current < 1 && !is_player {
                 commands.remove(*victim);
             } else {
-                println!("Health after attack:{}", health.current);
             }
         } else {
             println!("Failed to get Health component for victim: {:?}", victim);
