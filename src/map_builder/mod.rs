@@ -1,16 +1,24 @@
 mod automata;
+mod drunkard;
 mod empty;
 mod rooms;
-
-use crate::spawner;
+mod themes;
 
 use super::prelude::*;
+use crate::spawner;
 use automata::*;
+use drunkard::*;
 use empty::*;
 use rooms::*;
+use std::boxed::Box;
+use themes::*;
 
 trait MapArchitect {
     fn new(&mut self, rng: &mut RandomNumberGenerator) -> MapBuilder;
+}
+
+pub trait MapTheme: Sync + Send {
+    fn tile_to_render(&self, tile_type: TileType) -> FontCharType;
 }
 
 pub struct MapBuilder {
@@ -19,13 +27,27 @@ pub struct MapBuilder {
     pub monster_spawns: Vec<Point>,
     pub player_start: Point,
     pub amulet_start: Point,
+    pub theme: Box<dyn MapTheme>,
 }
 
 impl MapBuilder {
     pub fn new(rng: &mut RandomNumberGenerator) -> Self {
-        let mut architect = CellularAutomataArchitect {};
+        // let mut architect = CellularAutomataArchitect {};
+        // let mut architect = DrunkardArchitect {};
         // let mut architect = RoomsArchitect {};
-        let mb = architect.new(rng);
+        let mut architect: Box<dyn MapArchitect> = match rng.range(0, 2) {
+            0 => Box::new(CellularAutomataArchitect {}),
+            1 => Box::new(RoomsArchitect {}),
+            // 2 => Box::new(DrunkardArchitect {}),
+            _ => unreachable!(),
+        };
+        let mut mb = architect.new(rng);
+        // apply_prefab(&mut architect, rng);
+        mb.theme = match rng.range(0, 2) {
+            0 => DungeonTheme::new(),
+            1 => ForestTheme::new(),
+            _ => unreachable!(),
+        };
         mb
     }
 
