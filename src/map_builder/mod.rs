@@ -34,13 +34,13 @@ impl MapBuilder {
     pub fn new(rng: &mut RandomNumberGenerator) -> Self {
         // let mut architect = CellularAutomataArchitect {};
         // let mut architect = DrunkardArchitect {};
-        let mut architect = RoomsArchitect {};
-        // let mut architect: Box<dyn MapArchitect> = match rng.range(0, 2) {
-        //     0 => Box::new(CellularAutomataArchitect {}),
-        //     1 => Box::new(RoomsArchitect {}),
-        //     // 2 => Box::new(DrunkardArchitect {}),
-        //     _ => unreachable!(),
-        // };
+        // let mut architect = RoomsArchitect {};
+        let mut architect: Box<dyn MapArchitect> = match rng.range(0, 2) {
+            0 => Box::new(CellularAutomataArchitect {}),
+            1 => Box::new(RoomsArchitect {}),
+            // 2 => Box::new(DrunkardArchitect {}),
+            _ => unreachable!(),
+        };
         let mut mb = architect.new(rng);
         // apply_prefab(&mut architect, rng);
         mb.theme = match rng.range(0, 2) {

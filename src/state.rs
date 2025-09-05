@@ -1,6 +1,6 @@
 use super::prelude::*;
 use legion::systems::CommandBuffer;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 pub struct State {
     // pub map: Map,
     // pub player: Player,
@@ -159,7 +159,7 @@ impl State {
                 pos.x = map_builder.player_start.x;
                 pos.y = map_builder.player_start.y;
             });
-        if map_level == 2 {
+        if map_level == 1 {
             spawn_amulet_of_yala(&mut self.ecs, map_builder.amulet_start);
         } else {
             let exit_idx = map_builder.map.point2d_to_index(map_builder.amulet_start);
