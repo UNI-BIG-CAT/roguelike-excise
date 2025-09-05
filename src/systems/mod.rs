@@ -10,6 +10,7 @@ mod movement;
 mod player_input;
 mod random_move;
 mod tooltips;
+mod use_items;
 
 use super::prelude::*;
 // use crate::systems::collision::collision_system;
@@ -24,6 +25,7 @@ pub use movement::*;
 pub use player_input::*;
 pub use random_move::*;
 pub use tooltips::*;
+pub use use_items::*;
 
 pub fn build_input_scheduler() -> Schedule {
     // 运行所有注册的游戏系统
@@ -43,6 +45,8 @@ pub fn build_input_scheduler() -> Schedule {
 pub fn build_player_scheduler() -> Schedule {
     // 处理输入、更新游戏状态、准备渲染数据
     Schedule::builder()
+        .add_system(use_items_system())
+        .flush()
         .add_system(combat_system())
         .flush()
         .add_system(movement_system())
@@ -59,6 +63,8 @@ pub fn build_player_scheduler() -> Schedule {
 
 pub fn build_monster_scheduler() -> Schedule {
     Schedule::builder()
+        .add_system(use_items_system())
+        .flush()
         .add_system(random_move_system())
         .add_system(chasing_system())
         .flush()

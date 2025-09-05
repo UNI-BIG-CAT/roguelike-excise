@@ -68,3 +68,20 @@ impl FieldOfView {
         }
     }
 }
+
+#[derive(Copy, Debug, Clone, PartialEq)]
+pub struct ProvidersHealing {
+    pub amount: i32,
+}
+
+#[derive(Copy, Debug, Clone, PartialEq)]
+pub struct ProvidesDungeonMap;
+
+#[derive(Copy, Debug, Clone, PartialEq)]
+pub struct Carried(pub Entity);
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct ActivateItem {
+    pub used_by: Entity,
+    pub item: Entity,
+}
