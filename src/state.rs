@@ -1,5 +1,6 @@
 use super::prelude::*;
-
+use legion::systems::CommandBuffer;
+use std::collections::{HashMap, HashSet};
 pub struct State {
     // pub map: Map,
     // pub player: Player,
@@ -18,9 +19,17 @@ impl State {
         let mut ecs = World::default();
         let mut resources = Resources::default();
         let mut rng = RandomNumberGenerator::new();
-        let map_builder = MapBuilder::new(&mut rng);
+        let mut map_builder = MapBuilder::new(&mut rng);
         spawn_player(&mut ecs, map_builder.player_start); // 添加玩家
-        spawn_amulet_of_yala(&mut ecs, map_builder.amulet_start);
+
+        // let player_entity = *<Entity>::query()
+        //     .filter(component::<Player>())
+        //     .iter(&mut self.ecs)
+        //     .nth(0);
+
+        // spawn_amulet_of_yala(&mut ecs, map_builder.amulet_start);
+        let exit_idx = map_builder.map.point2d_to_index(map_builder.amulet_start);
+        map_builder.map.tiles[exit_idx] = TileType::Exit;
         map_builder.monster_spawns.iter().for_each(|pos| {
             spawn_entity(&mut ecs, &mut rng, *pos);
         });
@@ -32,6 +41,7 @@ impl State {
             .for_each(|pos| {
                 spawn_entity(&mut ecs, &mut rng, pos);
             });
+
         resources.insert(map_builder.map);
         resources.insert(Camera::new(map_builder.player_start));
         resources.insert(TurnState::AwaitingInput);
@@ -47,13 +57,16 @@ impl State {
             monster_system: build_monster_scheduler(),
         }
     }
+
     fn reset_game_state(&mut self) {
         self.ecs = World::default();
         self.resources = Resources::default();
         let mut rng = RandomNumberGenerator::new();
-        let map_builder = MapBuilder::new(&mut rng);
+        let mut map_builder = MapBuilder::new(&mut rng);
         spawn_player(&mut self.ecs, map_builder.player_start);
-        spawn_amulet_of_yala(&mut self.ecs, map_builder.amulet_start);
+        // spawn_amulet_of_yala(&mut self.ecs, map_builder.amulet_start);
+        let exit_idx = map_builder.map.point2d_to_index(map_builder.amulet_start);
+        map_builder.map.tiles[exit_idx] = TileType::Exit;
         map_builder.monster_spawns.iter().for_each(|pos| {
             spawn_entity(&mut self.ecs, &mut rng, *pos);
         });
@@ -102,6 +115,64 @@ impl State {
             self.reset_game_state();
         }
     }
+
+    fn advance_level(&mut self) {
+        // 复制玩家和物品
+        let player_entity = *<Entity>::query()
+            .filter(component::<Player>())
+            .iter(&mut self.ecs)
+            .nth(0)
+            .unwrap();
+        let mut entities_to_keep = HashSet::new();
+        entities_to_keep.insert(player_entity);
+
+        <(Entity, &Carried)>::query()
+            .iter(&mut self.ecs)
+            .filter(|(_e, carry)| carry.0 == player_entity)
+            .map(|(e, _carry)| *e)
+            .for_each(|entity| {
+                entities_to_keep.insert(entity);
+            });
+        // 删除其余实体
+        let mut cb = CommandBuffer::new(&mut self.ecs);
+        for e in Entity::query().iter(&self.ecs) {
+            if !entities_to_keep.contains(&e) {
+                cb.remove(*e);
+            }
+        }
+        cb.flush(&mut self.ecs);
+        // 将视场设置为脏
+        <&mut FieldOfView>::query()
+            .iter_mut(&mut self.ecs)
+            .for_each(|fov| {
+                fov.is_dirty = true;
+            });
+        //创建新地图
+        let mut rng = RandomNumberGenerator::new();
+        let mut map_builder = MapBuilder::new(&mut rng);
+        let mut map_level = 0;
+        <(&mut Player, &mut Point)>::query()
+            .iter_mut(&mut self.ecs)
+            .for_each(|(player, pos)| {
+                player.map_level += 1;
+                map_level = player.map_level;
+                pos.x = map_builder.player_start.x;
+                pos.y = map_builder.player_start.y;
+            });
+        if map_level == 2 {
+            spawn_amulet_of_yala(&mut self.ecs, map_builder.amulet_start);
+        } else {
+            let exit_idx = map_builder.map.point2d_to_index(map_builder.amulet_start);
+            map_builder.map.tiles[exit_idx] = TileType::Exit;
+        }
+        map_builder.monster_spawns.iter().for_each(|pos| {
+            spawn_enemy(&mut self.ecs, &mut rng, *pos);
+        });
+        self.resources.insert(map_builder.map);
+        self.resources.insert(Camera::new(map_builder.player_start));
+        self.resources.insert(TurnState::AwaitingInput);
+        self.resources.insert(map_builder.theme);
+    }
 }
 
 impl GameState for State {
@@ -148,6 +219,9 @@ impl GameState for State {
                 .execute(&mut self.ecs, &mut self.resources),
             TurnState::GameOver => self.game_over(ctx),
             TurnState::Victory => self.victory(ctx),
+            TurnState::NextLevel => {
+                self.advance_level();
+            }
         }
         /*
             render_draw_buffer(ctx).expect("Render error");

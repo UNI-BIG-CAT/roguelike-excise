@@ -3,15 +3,15 @@ use super::prelude::*;
 pub fn spawn_player(ecs: &mut World, pos: Point) {
     ecs.push((
         // 通过push创建组件
-        Player,
+        Player { map_level: 0 },
         pos,
         Render {
             color: ColorPair::new(WHITE, BLACK),
             glyph: to_cp437('@'),
         },
         Health {
-            current: 20,
-            max: 20,
+            current: 100,
+            max: 100,
         },
         FieldOfView::new(8),
     ));

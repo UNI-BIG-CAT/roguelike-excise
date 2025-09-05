@@ -8,6 +8,7 @@ const NUM_TILES: usize = (DISPLAY_WIDTH * DISPLAY_HEIGHT) as usize;
 pub enum TileType {
     Wall,
     Floor,
+    Exit,
 }
 
 pub fn map_idx(point: &Point) -> usize {
@@ -70,6 +71,7 @@ impl Map {
     // 是否可以进入该方块(也就是地板)
     pub fn can_enter_tile(&self, point: &Point) -> bool {
         self.is_in_bounds(point) && self.tiles[map_idx(point)] == TileType::Floor
+            || self.tiles[map_idx(point)] == TileType::Exit
     }
 
     // 尝试获取方块的索引

@@ -27,7 +27,7 @@ pub fn hud(ecs: &mut SubWorld) {
         format!("Health: {} / {}", player_health.current, player_health.max),
         ColorPair::new(WHITE, RED),
     );
-    //
+    // 背包
     let player = <(Entity, &Player)>::query()
         .iter(ecs)
         .find_map(|(entity, _player)| Some((*entity)))
@@ -49,6 +49,16 @@ pub fn hud(ecs: &mut SubWorld) {
         );
     }
 
+    //当前关卡
+    let (player, map_level) = <(Entity, &Player)>::query()
+        .iter(ecs)
+        .find_map(|(entity, player)| Some((*entity, player.map_level)))
+        .unwrap();
+    draw_batch.print_color_right(
+        Point::new(DISPLAY_HEIGHT * 2, 3),
+        format!("Dungeon Level: {}", map_level),
+        ColorPair::new(YELLOW, BLACK),
+    );
     //
     draw_batch.submit(2).expect("Batch error");
 }

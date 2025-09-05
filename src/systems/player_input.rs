@@ -124,7 +124,7 @@ pub fn player_input(
     }
 }
 
-fn use_item(n: usize, ecs: &mut SubWorld, commands: &mut CommandBuffer) -> Point {
+pub fn use_item(n: usize, ecs: &mut SubWorld, commands: &mut CommandBuffer) -> Point {
     let player_entity = <(Entity, &Player)>::query()
         .iter(ecs)
         .find_map(|(entity, _player)| Some(*entity))
