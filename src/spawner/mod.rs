@@ -1,4 +1,7 @@
+mod template;
+
 use super::prelude::*;
+use template::*;
 
 pub fn spawn_player(ecs: &mut World, pos: Point) {
     ecs.push((
@@ -14,6 +17,7 @@ pub fn spawn_player(ecs: &mut World, pos: Point) {
             max: 100,
         },
         FieldOfView::new(8),
+        Damage(1),
     ));
 }
 
@@ -102,4 +106,14 @@ pub fn spawn_entity(ecs: &mut World, rng: &mut RandomNumberGenerator, pos: Point
         2 => spawn_magic_mapper(ecs, pos),
         _ => spawn_enemy(ecs, rng, pos),
     };
+}
+
+pub fn spawn_level(
+    ecs: &mut World,
+    rng: &mut RandomNumberGenerator,
+    level: usize,
+    spawn_points: &[Point],
+) {
+    let templates = Templates::load();
+    templates.spawn_entities(ecs, rng, level, spawn_points);
 }
