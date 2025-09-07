@@ -30,22 +30,19 @@ pub fn combat(ecs: &mut SubWorld, commands: &mut CommandBuffer) {
             .filter(|(carried, _)| carried.0 == *attacker)
             .map(|(_, dmg)| dmg.0)
             .sum();
+        // println!("weapon_damage: {}", weapon_damage);
         let final_damage = base_damage + weapon_damage;
-
-        // Check if victim still exists before proceeding
-        if let Ok(victim_entry) = ecs.entry_ref(*victim) {
-            let is_player = victim_entry.get_component::<Player>().is_ok();
-
-            if let Ok(mut victim_entry) = ecs.entry_mut(*victim) {
-                if let Ok(health) = victim_entry.get_component_mut::<Health>() {
-                    health.current -= final_damage;
-                    if health.current < 1 && !is_player {
-                        commands.remove(*victim);
-                    }
-                }
+        // println!("final_damage: {}", final_damage);
+        if let Ok(mut health) = ecs
+            .entry_mut(*victim)
+            .unwrap()
+            .get_component_mut::<Health>()
+        {
+            health.current -= final_damage;
+            if health.current < 1 {
+                commands.remove(*victim);
             }
         }
-
         // Always remove the attack message after processing
         commands.remove(*message);
     });

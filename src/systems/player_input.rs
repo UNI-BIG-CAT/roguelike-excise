@@ -52,12 +52,13 @@ pub fn player_input(
                     .for_each(|(entity, _item, _item_pos)| {
                         commands.remove_component::<Point>(*entity);
                         commands.add_component(*entity, Carried(player));
+
                         if let Ok(e) = ecs.entry_ref(*entity) {
                             if e.get_component::<Weapon>().is_ok() {
                                 <(Entity, &Carried, &Weapon)>::query()
                                     .iter(ecs)
-                                    .filter(|(_, carried, _)| carried.0 == player)
-                                    .for_each(|(e, c, w)| {
+                                    .filter(|(_, c, _)| c.0 == player)
+                                    .for_each(|(e, _c, _w)| {
                                         commands.remove(*e);
                                     })
                             }
@@ -65,8 +66,8 @@ pub fn player_input(
                     });
                 Point::new(0, 0)
             }
-            VirtualKeyCode::Key1 => use_item(0, ecs, commands),
-            VirtualKeyCode::Key2 => use_item(1, ecs, commands),
+            VirtualKeyCode::Key1 => use_item(1, ecs, commands),
+            VirtualKeyCode::Key2 => use_item(2, ecs, commands),
             VirtualKeyCode::Key3 => use_item(3, ecs, commands),
             VirtualKeyCode::Key4 => use_item(4, ecs, commands),
             VirtualKeyCode::Key5 => use_item(5, ecs, commands),
@@ -144,7 +145,7 @@ pub fn use_item(n: usize, ecs: &mut SubWorld, commands: &mut CommandBuffer) -> P
         .iter(ecs)
         .filter(|(_, _, carried)| carried.0 == player_entity)
         .enumerate()
-        .filter(|(item_count, (_, _, _))| *item_count == n)
+        .filter(|(item_count, (_, _, _))| *item_count == n - 1)
         .find_map(|(_, (item_entity, _, _))| Some(*item_entity));
     if let Some(item_entity) = item_entity {
         commands.push((
